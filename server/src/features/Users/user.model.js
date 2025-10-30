@@ -19,7 +19,6 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
-      select: false,
     },
     role: {
       type: String,
@@ -34,6 +33,10 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.index({ email: 1 }, { unique: true });
+userSchema.index({ role: 1 });
+userSchema.index({ createdAt: 1 }); // For querying users by creation date range 
 
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
@@ -57,7 +60,7 @@ userSchema.methods.generateJWT = function () {
   const refreshToken = () => {
     return jwt.sign(
       { _id: this._id, role: this.role },
-      process.env.JWT_ACCESS_SECRET,
+      process.env.JWT_REFRESH_SECRET,
       { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || "7d" }
     );
   };
