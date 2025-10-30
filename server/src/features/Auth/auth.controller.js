@@ -33,7 +33,7 @@ module.exports.register = async (req, res) => {
     user = new User({ name, email, password, role });
     await user.save();
 
-    const { accessToken, refreshToken } = user.geneateJWT();
+    const { accessToken, refreshToken } = user.generateJWT();
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -46,7 +46,7 @@ module.exports.register = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      status: "Created",
+      status: "OK",
       timestamp: new Date().toISOString(),
       message: "User registered successfully",
       data: {
@@ -68,7 +68,6 @@ module.exports.register = async (req, res) => {
 // @ Route : POST /api/auth/login
 // @ Desc : Login a user
 // @ Access : Public
-
 module.exports.login = async (req, res) => {
   try {
     const { error } = loginSchema.validate(req.body);
@@ -101,7 +100,7 @@ module.exports.login = async (req, res) => {
         message: "Invalid email or password",
       });
     }
-    const { accessToken, refreshToken } = user.geneateJWT();
+    const { accessToken, refreshToken } = user.generateJWT();
     user.refreshToken = refreshToken;
     await user.save();
     await client.setEx(
@@ -121,6 +120,7 @@ module.exports.login = async (req, res) => {
       },
     });
   } catch (error) {
+    console.log(error);
     return res.status(500).json({
       success: false,
       status: "Internal Server Error",
